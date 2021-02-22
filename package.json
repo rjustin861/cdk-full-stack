@@ -1,0 +1,44 @@
+{
+  "name": "cdk",
+  "version": "0.1.0",
+  "bin": {
+    "cdk": "/bin/master-full-stack-single.ts"
+  },
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "jest",
+    "cdk": "cdk"
+  },
+  "devDependencies": {
+    "@aws-cdk/assert": "^1.90.1",
+    "@types/jest": "^26.0.20",
+    "@types/node": "14.14.31",
+    "jest": "^26.6.3",
+    "ts-jest": "^26.5.1",
+    "ts-node": "^9.1.1",
+    "typescript": "^4.1.5"
+  },
+  "dependencies": {
+    "@aws-cdk/assets": "^1.90.1",
+    "@aws-cdk/aws-apigateway": "^1.90.1",
+    "@aws-cdk/aws-cloudfront": "^1.90.1",
+    "@aws-cdk/aws-cloudfront-origins": "^1.90.1",
+    "@aws-cdk/aws-codebuild": "^1.90.1",
+    "@aws-cdk/aws-codecommit": "^1.90.1",
+    "@aws-cdk/aws-codepipeline": "^1.90.1",
+    "@aws-cdk/aws-codepipeline-actions": "^1.90.1",
+    "@aws-cdk/aws-cognito": "^1.90.1",
+    "@aws-cdk/aws-dynamodb": "^1.90.1",
+    "@aws-cdk/aws-iam": "^1.90.1",
+    "@aws-cdk/aws-kms": "^1.90.1",
+    "@aws-cdk/aws-lambda": "^1.90.1",
+    "@aws-cdk/aws-s3": "^1.90.1",
+    "@aws-cdk/aws-s3-deployment": "^1.90.1",
+    "@aws-cdk/core": "^1.90.1",
+    "@aws-cdk/custom-resources": "^1.90.1",
+    "@aws-cdk/region-info": "^1.90.1",
+    "aws-sdk": "^2.848.0",
+    "source-map-support": "^0.5.19"
+  }
+}
