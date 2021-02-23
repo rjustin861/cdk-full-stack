@@ -1,7 +1,8 @@
-import { AnyPrincipal, PolicyStatement } from '@aws-cdk/aws-iam';
-import { BlockPublicAccess, Bucket } from '@aws-cdk/aws-s3';
-import { BucketDeployment, Source } from '@aws-cdk/aws-s3-deployment';
-import * as cdk from '@aws-cdk/core';
+import { AnyPrincipal, PolicyStatement } from "@aws-cdk/aws-iam";
+import { BlockPublicAccess, Bucket } from "@aws-cdk/aws-s3";
+import { BucketDeployment, Source } from "@aws-cdk/aws-s3-deployment";
+import { AutoDeleteBucket } from "@mobileposse/auto-delete-bucket";
+import * as cdk from "@aws-cdk/core";
 
 export interface S3StackProps extends cdk.StackProps {
   WebsiteIndexDocument: string;
@@ -19,7 +20,7 @@ export class S3Stack extends cdk.Stack {
     //Todo - grant access to cloudfront user and uncomment block all
     //#region
     /* Assets Source Bucket will be used as a codebuild source for the react code */
-    this.sourceAssetBucket = new Bucket(this, 'SourceAssetBucket', {
+    this.sourceAssetBucket = new AutoDeleteBucket(this, "SourceAssetBucket", {
       bucketName: `aws-fullstack-template-source-assets-${getRandomInt(
         1000000
       )}`,
@@ -29,7 +30,7 @@ export class S3Stack extends cdk.Stack {
     });
 
     /* Website Bucket is the target bucket for the react application */
-    this.websiteBucket = new Bucket(this, 'WebsiteBucket', {
+    this.websiteBucket = new AutoDeleteBucket(this, "WebsiteBucket", {
       bucketName: `aws-fullstack-template-website-${getRandomInt(1000000)}`,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       websiteIndexDocument: props.WebsiteIndexDocument,
@@ -37,18 +38,22 @@ export class S3Stack extends cdk.Stack {
     });
 
     /* Pipleine Artifacts Bucket is used by CodePipeline during Builds */
-    this.pipelineArtifactsBucket = new Bucket(this, 'PipelineArtifactsBucket', {
-      bucketName: `aws-fullstack-template-codepipeline-artifacts-${getRandomInt(
-        1000000
-      )}`,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-    });
+    this.pipelineArtifactsBucket = new AutoDeleteBucket(
+      this,
+      "PipelineArtifactsBucket",
+      {
+        bucketName: `aws-fullstack-template-codepipeline-artifacts-${getRandomInt(
+          1000000
+        )}`,
+        blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+        removalPolicy: cdk.RemovalPolicy.DESTROY,
+      }
+    );
 
     /* S3 Website Deployment */
     /* Seed the website bucket with the react source */
-    const s3WebsiteDeploy = new BucketDeployment(this, 'S3WebsiteDeploy', {
-      sources: [Source.asset('../assets/archive')],
+    const s3WebsiteDeploy = new BucketDeployment(this, "S3WebsiteDeploy", {
+      sources: [Source.asset("./assets/archive")],
       destinationBucket: this.sourceAssetBucket,
     });
 
@@ -56,7 +61,7 @@ export class S3Stack extends cdk.Stack {
     this.websiteBucket.addToResourcePolicy(
       new PolicyStatement({
         resources: [`${this.websiteBucket.bucketArn}/*`],
-        actions: ['s3:Get*'],
+        actions: ["s3:Get*"],
         principals: [new AnyPrincipal()],
       })
     );

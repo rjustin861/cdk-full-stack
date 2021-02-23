@@ -38,6 +38,7 @@
     "@aws-cdk/core": "^1.90.1",
     "@aws-cdk/custom-resources": "^1.90.1",
     "@aws-cdk/region-info": "^1.90.1",
+    "@mobileposse/auto-delete-bucket": "^1.55.0",
     "aws-sdk": "^2.848.0",
     "source-map-support": "^0.5.19"
   }

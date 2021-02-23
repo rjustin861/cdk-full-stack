@@ -1,11 +1,11 @@
-import * as cdk from '@aws-cdk/core';
-import * as iam from '@aws-cdk/aws-iam';
-import { CognitoStack } from '../cognito/cognito';
-import { S3Stack } from '../s3/s3';
-import { ApiGatewayStack } from '../apigateway/apigateway';
-import * as codebuild from '@aws-cdk/aws-codebuild';
-import * as codepipeline from '@aws-cdk/aws-codepipeline';
-import * as codepipelineactions from '@aws-cdk/aws-codepipeline-actions';
+import * as cdk from "@aws-cdk/core";
+import * as iam from "@aws-cdk/aws-iam";
+import { CognitoStack } from "../cognito/cognito";
+import { S3Stack } from "../s3/s3";
+import { ApiGatewayStack } from "../apigateway/apigateway";
+import * as codebuild from "@aws-cdk/aws-codebuild";
+import * as codepipeline from "@aws-cdk/aws-codepipeline";
+import * as codepipelineactions from "@aws-cdk/aws-codepipeline-actions";
 
 export interface CodeStackProps extends cdk.StackProps {
   ProjectName: String;
@@ -24,15 +24,15 @@ export class CodeStack extends cdk.Stack {
 
     /* CodeBuild Roles/Policies */
     //#region
-    const codeBuildRole = new iam.Role(this, 'CodeBuildRole', {
-      roleName: 'CodeBuildRole',
-      assumedBy: new iam.ServicePrincipal('codebuild.amazonaws.com'),
+    const codeBuildRole = new iam.Role(this, "CodeBuildRole", {
+      roleName: "CodeBuildRole",
+      assumedBy: new iam.ServicePrincipal("codebuild.amazonaws.com"),
     });
 
     codeBuildRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: ['s3:*'],
+        actions: ["s3:*"],
         resources: [
           s3Stack.sourceAssetBucket.bucketArn,
           s3Stack.pipelineArtifactsBucket.bucketArn,
@@ -46,24 +46,24 @@ export class CodeStack extends cdk.Stack {
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
         actions: [
-          'logs:CreateLogStream',
-          'logs:PutLogEvents',
-          'logs:CreateLogGroup',
-          'cloudfront:CreateInvalidation',
+          "logs:CreateLogStream",
+          "logs:PutLogEvents",
+          "logs:CreateLogGroup",
+          "cloudfront:CreateInvalidation",
         ],
-        resources: ['*'],
+        resources: ["*"],
       })
     );
 
-    const codePipelineRole = new iam.Role(this, 'CodePipelineRole', {
-      roleName: 'CodePipelineRole',
-      assumedBy: new iam.ServicePrincipal('codepipeline.amazonaws.com'),
+    const codePipelineRole = new iam.Role(this, "CodePipelineRole", {
+      roleName: "CodePipelineRole",
+      assumedBy: new iam.ServicePrincipal("codepipeline.amazonaws.com"),
     });
 
     codePipelineRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: ['s3:*'],
+        actions: ["s3:*"],
         resources: [
           s3Stack.sourceAssetBucket.bucketArn,
           s3Stack.pipelineArtifactsBucket.bucketArn,
@@ -79,7 +79,7 @@ export class CodeStack extends cdk.Stack {
     //#region
     const codeBuildProject = new codebuild.PipelineProject(
       this,
-      'CodeBuildProject',
+      "CodeBuildProject",
       {
         projectName: `${props.ProjectName}-build`,
         description: `CodeBuild Project for ${props.ProjectName}.`,
@@ -99,16 +99,16 @@ export class CodeStack extends cdk.Stack {
           },
         },
         role: codeBuildRole,
-        buildSpec: codebuild.BuildSpec.fromSourceFilename('buildspec.yml'),
+        buildSpec: codebuild.BuildSpec.fromSourceFilename("buildspec.yml"),
         timeout: cdk.Duration.minutes(5),
       }
     );
-    cdk.Tag.add(codeBuildProject, 'app-name', `${props.ProjectName}`);
+    cdk.Tags.of(codeBuildProject).add("app-name", `${props.ProjectName}`);
 
     codePipelineRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: ['codebuild:BatchGetBuilds', 'codebuild:StartBuild'],
+        actions: ["codebuild:BatchGetBuilds", "codebuild:StartBuild"],
         resources: [codeBuildProject.projectArn],
       })
     );
@@ -124,28 +124,28 @@ export class CodeStack extends cdk.Stack {
       `${props.ProjectName}-BuildArtifact`
     );
 
-    const codePipeline = new codepipeline.Pipeline(this, 'AssetsCodePipeline', {
+    const codePipeline = new codepipeline.Pipeline(this, "AssetsCodePipeline", {
       pipelineName: `${props.ProjectName}-Assets-Pipeline`,
       role: codePipelineRole,
       artifactBucket: s3Stack.pipelineArtifactsBucket,
       stages: [
         {
-          stageName: 'Source',
+          stageName: "Source",
           actions: [
             new codepipelineactions.S3SourceAction({
-              actionName: 's3Source',
+              actionName: "s3Source",
               bucket: s3Stack.sourceAssetBucket,
-              bucketKey: 'assets.zip',
+              bucketKey: "assets.zip",
               output: sourceOutput,
               //trigger: codepipelineactions.S3Trigger.POLL
             }),
           ],
         },
         {
-          stageName: 'Build',
+          stageName: "Build",
           actions: [
             new codepipelineactions.CodeBuildAction({
-              actionName: 'build-and-deploy',
+              actionName: "build-and-deploy",
               project: codeBuildProject,
               input: sourceOutput,
               outputs: [buildOutput],
