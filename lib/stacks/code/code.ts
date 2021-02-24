@@ -8,7 +8,7 @@ import * as codepipeline from "@aws-cdk/aws-codepipeline";
 import * as codepipelineactions from "@aws-cdk/aws-codepipeline-actions";
 
 export interface CodeStackProps extends cdk.StackProps {
-  ProjectName: String;
+  projectName: String;
 }
 
 export class CodeStack extends cdk.Stack {
@@ -81,8 +81,8 @@ export class CodeStack extends cdk.Stack {
       this,
       "CodeBuildProject",
       {
-        projectName: `${props.ProjectName}-build`,
-        description: `CodeBuild Project for ${props.ProjectName}.`,
+        projectName: `${props.projectName}-build`,
+        description: `CodeBuild Project for ${props.projectName}.`,
         environment: {
           computeType: codebuild.ComputeType.SMALL,
           buildImage: codebuild.LinuxBuildImage.STANDARD_3_0,
@@ -103,7 +103,7 @@ export class CodeStack extends cdk.Stack {
         timeout: cdk.Duration.minutes(5),
       }
     );
-    cdk.Tags.of(codeBuildProject).add("app-name", `${props.ProjectName}`);
+    cdk.Tags.of(codeBuildProject).add("app-name", `${props.projectName}`);
 
     codePipelineRole.addToPolicy(
       new iam.PolicyStatement({
@@ -118,14 +118,14 @@ export class CodeStack extends cdk.Stack {
     /* Code Pipeline Object */
     //#region
     const sourceOutput = new codepipeline.Artifact(
-      `${props.ProjectName}-SourceArtifact`
+      `${props.projectName}-SourceArtifact`
     );
     const buildOutput = new codepipeline.Artifact(
-      `${props.ProjectName}-BuildArtifact`
+      `${props.projectName}-BuildArtifact`
     );
 
     const codePipeline = new codepipeline.Pipeline(this, "AssetsCodePipeline", {
-      pipelineName: `${props.ProjectName}-Assets-Pipeline`,
+      pipelineName: `${props.projectName}-Assets-Pipeline`,
       role: codePipelineRole,
       artifactBucket: s3Stack.pipelineArtifactsBucket,
       stages: [

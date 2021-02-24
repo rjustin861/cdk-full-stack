@@ -1,16 +1,16 @@
-import * as cdk from '@aws-cdk/core';
+import * as cdk from "@aws-cdk/core";
 import {
   Effect,
   Policy,
   PolicyStatement,
   Role,
   ServicePrincipal,
-} from '@aws-cdk/aws-iam';
-import { AttributeType, Table } from '@aws-cdk/aws-dynamodb';
+} from "@aws-cdk/aws-iam";
+import { AttributeType, Table } from "@aws-cdk/aws-dynamodb";
 
 export interface DatabaseStackProps extends cdk.StackProps {
-  ProjectName: string;
-  TableName: string;
+  projectName: string;
+  tableName: string;
 }
 
 export class DatabaseStack extends cdk.Stack {
@@ -23,27 +23,27 @@ export class DatabaseStack extends cdk.Stack {
     /* Dynamo Objects */
     //#region
     /* Create DynamoDB Goals Table */
-    this.goalsTable = new Table(this, 'TGoals', {
-      tableName: `${props.ProjectName}-${props.TableName}`,
-      partitionKey: { name: 'userId', type: AttributeType.STRING },
-      sortKey: { name: 'goalId', type: AttributeType.STRING },
+    this.goalsTable = new Table(this, "TGoals", {
+      tableName: `${props.projectName}-${props.tableName}`,
+      partitionKey: { name: "userId", type: AttributeType.STRING },
+      sortKey: { name: "goalId", type: AttributeType.STRING },
       readCapacity: 1,
       writeCapacity: 1,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
     });
 
     /* Create DynamoDB Role/Policy */
-    this.dynamoDbRole = new Role(this, 'DynamoDbRole', {
-      assumedBy: new ServicePrincipal('lambda.amazonaws.com'),
+    this.dynamoDbRole = new Role(this, "DynamoDbRole", {
+      assumedBy: new ServicePrincipal("lambda.amazonaws.com"),
     });
 
-    const goalsPolicy = new Policy(this, 'GoalsPolicy', {
-      policyName: 'GoalsPolicy',
+    const goalsPolicy = new Policy(this, "GoalsPolicy", {
+      policyName: "GoalsPolicy",
       roles: [this.dynamoDbRole],
       statements: [
         new PolicyStatement({
           effect: Effect.ALLOW,
-          actions: ['dynamodb:*'],
+          actions: ["dynamodb:*"],
           resources: [this.goalsTable.tableArn],
         }),
       ],

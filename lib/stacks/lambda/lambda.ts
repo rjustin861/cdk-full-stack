@@ -5,7 +5,7 @@ import { Table } from "@aws-cdk/aws-dynamodb";
 import { Role } from "@aws-cdk/aws-iam";
 
 export interface LambdaStackProps extends cdk.StackProps {
-  ProjectName: string;
+  projectName: string;
 }
 
 export class LambdaStack extends cdk.Stack {
@@ -27,7 +27,7 @@ export class LambdaStack extends cdk.Stack {
     /* Lambda Objects */
     //#region
     this.functionListGoals = new lambda.Function(this, "FunctionListGoals", {
-      functionName: `${props.ProjectName}-ListGoals`,
+      functionName: `${props.projectName}-ListGoals`,
       runtime: lambda.Runtime.NODEJS_12_X,
       description: "Get list of goals for userId",
       handler: "ListGoals.handler",
@@ -39,7 +39,7 @@ export class LambdaStack extends cdk.Stack {
     });
 
     this.functionCreateGoal = new lambda.Function(this, "FunctionCreateGoal", {
-      functionName: `${props.ProjectName}-CreateGoal`,
+      functionName: `${props.projectName}-CreateGoal`,
       runtime: lambda.Runtime.NODEJS_12_X,
       description: "Create goal for user id",
       handler: "CreateGoal.handler",
@@ -51,7 +51,7 @@ export class LambdaStack extends cdk.Stack {
     });
 
     this.functionDeleteGoal = new lambda.Function(this, "FunctionDeleteGoal", {
-      functionName: `${props.ProjectName}-DeleteGoal`,
+      functionName: `${props.projectName}-DeleteGoal`,
       runtime: lambda.Runtime.NODEJS_12_X,
       description: "Delete goal for user id",
       handler: "DeleteGoal.handler",
@@ -63,7 +63,7 @@ export class LambdaStack extends cdk.Stack {
     });
 
     this.functionUpdateGoal = new lambda.Function(this, "FunctionUpdateGoal", {
-      functionName: `${props.ProjectName}-UpdateGoal`,
+      functionName: `${props.projectName}-UpdateGoal`,
       runtime: lambda.Runtime.NODEJS_12_X,
       description: "Update goal for user id",
       handler: "UpdateGoal.handler",
@@ -75,7 +75,7 @@ export class LambdaStack extends cdk.Stack {
     });
 
     this.functionGetGoal = new lambda.Function(this, "FunctionGetGoal", {
-      functionName: `${props.ProjectName}-GetGoal`,
+      functionName: `${props.projectName}-GetGoal`,
       runtime: lambda.Runtime.NODEJS_12_X,
       description: "Get goal for user id",
       handler: "GetGoal.handler",

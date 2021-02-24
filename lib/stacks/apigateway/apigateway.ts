@@ -6,13 +6,13 @@ import {
   MockIntegration,
   PassthroughBehavior,
   RestApi,
-} from '@aws-cdk/aws-apigateway';
-import * as cdk from '@aws-cdk/core';
-import { CognitoStack } from '../cognito/cognito';
-import { LambdaStack } from '../lambda/lambda';
+} from "@aws-cdk/aws-apigateway";
+import * as cdk from "@aws-cdk/core";
+import { CognitoStack } from "../cognito/cognito";
+import { LambdaStack } from "../lambda/lambda";
 
 export interface ApiGatewayStackProps extends cdk.StackProps {
-  ProjectName: string;
+  projectName: string;
 }
 
 export class ApiGatewayStack extends cdk.Stack {
@@ -29,25 +29,25 @@ export class ApiGatewayStack extends cdk.Stack {
 
     /* Api Gateway */
     //#region
-    this.appApi = new RestApi(this, 'AppApi', {
-      restApiName: props.ProjectName,
+    this.appApi = new RestApi(this, "AppApi", {
+      restApiName: props.projectName,
     });
 
-    const authorizer = new CfnAuthorizer(this, 'ApiAuthorizer', {
+    const authorizer = new CfnAuthorizer(this, "ApiAuthorizer", {
       restApiId: this.appApi.restApiId,
-      name: 'ApiAuthorizer',
-      type: 'COGNITO_USER_POOLS',
-      identitySource: 'method.request.header.Authorization',
+      name: "ApiAuthorizer",
+      type: "COGNITO_USER_POOLS",
+      identitySource: "method.request.header.Authorization",
       providerArns: [cognitoStack.userPool.userPoolArn],
     });
 
-    this.appApi.root.addMethod('ANY');
+    this.appApi.root.addMethod("ANY");
 
-    const items = this.appApi.root.addResource('goals');
+    const items = this.appApi.root.addResource("goals");
     const getAllIntegration = new LambdaIntegration(
       lambdaStack.functionListGoals
     );
-    items.addMethod('GET', getAllIntegration, {
+    items.addMethod("GET", getAllIntegration, {
       authorizationType: AuthorizationType.IAM,
       authorizer: { authorizerId: authorizer.ref },
     });
@@ -55,17 +55,17 @@ export class ApiGatewayStack extends cdk.Stack {
     const createOneIntegration = new LambdaIntegration(
       lambdaStack.functionCreateGoal
     );
-    items.addMethod('POST', createOneIntegration, {
+    items.addMethod("POST", createOneIntegration, {
       authorizationType: AuthorizationType.IAM,
       authorizer: { authorizerId: authorizer.ref },
     });
     addCorsOptions(items);
 
-    const singleItem = items.addResource('{id}');
+    const singleItem = items.addResource("{id}");
     const getOneIntegration = new LambdaIntegration(
       lambdaStack.functionGetGoal
     );
-    singleItem.addMethod('GET', getOneIntegration, {
+    singleItem.addMethod("GET", getOneIntegration, {
       authorizationType: AuthorizationType.IAM,
       authorizer: { authorizerId: authorizer.ref },
     });
@@ -73,7 +73,7 @@ export class ApiGatewayStack extends cdk.Stack {
     const updateOneIntegration = new LambdaIntegration(
       lambdaStack.functionUpdateGoal
     );
-    singleItem.addMethod('PUT', updateOneIntegration, {
+    singleItem.addMethod("PUT", updateOneIntegration, {
       authorizationType: AuthorizationType.IAM,
       authorizer: { authorizerId: authorizer.ref },
     });
@@ -81,7 +81,7 @@ export class ApiGatewayStack extends cdk.Stack {
     const deleteOneIntegration = new LambdaIntegration(
       lambdaStack.functionDeleteGoal
     );
-    singleItem.addMethod('DELETE', deleteOneIntegration, {
+    singleItem.addMethod("DELETE", deleteOneIntegration, {
       authorizationType: AuthorizationType.IAM,
       authorizer: { authorizerId: authorizer.ref },
     });
@@ -93,36 +93,36 @@ export class ApiGatewayStack extends cdk.Stack {
 
 export function addCorsOptions(apiResource: IResource) {
   apiResource.addMethod(
-    'OPTIONS',
+    "OPTIONS",
     new MockIntegration({
       integrationResponses: [
         {
-          statusCode: '200',
+          statusCode: "200",
           responseParameters: {
-            'method.response.header.Access-Control-Allow-Headers':
+            "method.response.header.Access-Control-Allow-Headers":
               "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token,X-Amz-User-Agent'",
-            'method.response.header.Access-Control-Allow-Origin': "'*'",
-            'method.response.header.Access-Control-Allow-Credentials':
+            "method.response.header.Access-Control-Allow-Origin": "'*'",
+            "method.response.header.Access-Control-Allow-Credentials":
               "'false'",
-            'method.response.header.Access-Control-Allow-Methods':
+            "method.response.header.Access-Control-Allow-Methods":
               "'OPTIONS,GET,PUT,POST,DELETE'",
           },
         },
       ],
       passthroughBehavior: PassthroughBehavior.NEVER,
       requestTemplates: {
-        'application/json': '{"statusCode": 200}',
+        "application/json": '{"statusCode": 200}',
       },
     }),
     {
       methodResponses: [
         {
-          statusCode: '200',
+          statusCode: "200",
           responseParameters: {
-            'method.response.header.Access-Control-Allow-Headers': true,
-            'method.response.header.Access-Control-Allow-Methods': true,
-            'method.response.header.Access-Control-Allow-Credentials': true,
-            'method.response.header.Access-Control-Allow-Origin': true,
+            "method.response.header.Access-Control-Allow-Headers": true,
+            "method.response.header.Access-Control-Allow-Methods": true,
+            "method.response.header.Access-Control-Allow-Credentials": true,
+            "method.response.header.Access-Control-Allow-Origin": true,
           },
         },
       ],

@@ -5,7 +5,7 @@ import { AutoDeleteBucket } from "@mobileposse/auto-delete-bucket";
 import * as cdk from "@aws-cdk/core";
 
 export interface S3StackProps extends cdk.StackProps {
-  WebsiteIndexDocument: string;
+  websiteIndexDocument: string;
 }
 
 export class S3Stack extends cdk.Stack {
@@ -33,8 +33,8 @@ export class S3Stack extends cdk.Stack {
     this.websiteBucket = new AutoDeleteBucket(this, "WebsiteBucket", {
       bucketName: `aws-fullstack-template-website-${getRandomInt(1000000)}`,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      websiteIndexDocument: props.WebsiteIndexDocument,
-      websiteErrorDocument: props.WebsiteIndexDocument,
+      websiteIndexDocument: props.websiteIndexDocument,
+      websiteErrorDocument: props.websiteIndexDocument,
     });
 
     /* Pipleine Artifacts Bucket is used by CodePipeline during Builds */

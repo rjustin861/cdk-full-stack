@@ -1,11 +1,11 @@
-import * as cdk from '@aws-cdk/core';
-import * as iam from '@aws-cdk/aws-iam';
-import * as cognito from '@aws-cdk/aws-cognito';
-import { Policy } from '@aws-cdk/aws-iam';
-import { UserPool } from '@aws-cdk/aws-cognito';
+import * as cdk from "@aws-cdk/core";
+import * as iam from "@aws-cdk/aws-iam";
+import * as cognito from "@aws-cdk/aws-cognito";
+import { Policy } from "@aws-cdk/aws-iam";
+import { UserPool } from "@aws-cdk/aws-cognito";
 
 export interface CognitoStackProps extends cdk.StackProps {
-  ProjectName: string;
+  projectName: string;
 }
 
 export class CognitoStack extends cdk.Stack {
@@ -19,25 +19,25 @@ export class CognitoStack extends cdk.Stack {
     /* Cognito Objects */
     //#region
     /* Cognito SNS Policy */
-    const cognitoSnsRole = new iam.Role(this, 'SNSRole', {
-      assumedBy: new iam.ServicePrincipal('cognito-idp.amazonaws.com'),
+    const cognitoSnsRole = new iam.Role(this, "SNSRole", {
+      assumedBy: new iam.ServicePrincipal("cognito-idp.amazonaws.com"),
     });
 
-    const snsPolicy = new Policy(this, 'CognitoSNSPolicy', {
-      policyName: 'CognitoSNSPolicy',
+    const snsPolicy = new Policy(this, "CognitoSNSPolicy", {
+      policyName: "CognitoSNSPolicy",
       roles: [cognitoSnsRole],
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          actions: ['sns:publish'],
-          resources: ['*'],
+          actions: ["sns:publish"],
+          resources: ["*"],
         }),
       ],
     });
 
     /* Cognito User Pool */
-    this.userPool = new UserPool(this, 'UserPool', {
-      userPoolName: `${props.ProjectName}-UserPool`,
+    this.userPool = new UserPool(this, "UserPool", {
+      userPoolName: `${props.projectName}-UserPool`,
       selfSignUpEnabled: true,
       signInAliases: { email: true },
       standardAttributes: {
@@ -55,24 +55,24 @@ export class CognitoStack extends cdk.Stack {
         requireUppercase: false,
       },
       userVerification: {
-        emailSubject: 'Your verification code',
-        emailBody: 'Here is your verification code: {####}',
+        emailSubject: "Your verification code",
+        emailBody: "Here is your verification code: {####}",
         emailStyle: cognito.VerificationEmailStyle.CODE,
         smsMessage:
-          'Your username is {username}, Your verification code is {####}',
+          "Your username is {username}, Your verification code is {####}",
       },
     });
 
     // /* User Pool Client */
-    this.userPoolClient = new cognito.UserPoolClient(this, 'UserPoolClient', {
-      userPoolClientName: `${props.ProjectName}-UserPoolClient`,
+    this.userPoolClient = new cognito.UserPoolClient(this, "UserPoolClient", {
+      userPoolClientName: `${props.projectName}-UserPoolClient`,
       generateSecret: false,
       userPool: this.userPool,
     });
 
     /* Identity Pool */
-    this.identityPool = new cognito.CfnIdentityPool(this, 'IdentityPool', {
-      identityPoolName: `${props.ProjectName}Identity`,
+    this.identityPool = new cognito.CfnIdentityPool(this, "IdentityPool", {
+      identityPoolName: `${props.projectName}Identity`,
       allowUnauthenticatedIdentities: true,
       cognitoIdentityProviders: [
         {
@@ -84,68 +84,68 @@ export class CognitoStack extends cdk.Stack {
 
     /* Cognito Roles */
     /* Unauthorized Role/Policy */
-    const unauthorizedRole = new iam.Role(this, 'CognitoUnAuthorizedRole', {
+    const unauthorizedRole = new iam.Role(this, "CognitoUnAuthorizedRole", {
       assumedBy: new iam.FederatedPrincipal(
-        'cognito-identity.amazonaws.com',
+        "cognito-identity.amazonaws.com",
         {
           StringEquals: {
-            'cognito-identity.amazonaws.com:aud': this.identityPool.ref,
+            "cognito-identity.amazonaws.com:aud": this.identityPool.ref,
           },
-          'ForAnyValue:StringLike': {
-            'cognito-identity.amazonaws.com:amr': 'unauthenticated',
+          "ForAnyValue:StringLike": {
+            "cognito-identity.amazonaws.com:amr": "unauthenticated",
           },
         },
-        'sts:AssumeRoleWithWebIdentity'
+        "sts:AssumeRoleWithWebIdentity"
       ),
     });
 
     const cognitoUnauthorizedPolicy = new Policy(
       this,
-      'CognitoUnauthorizedPolicy',
+      "CognitoUnauthorizedPolicy",
       {
-        policyName: 'CognitoUnauthorizedPolicy',
+        policyName: "CognitoUnauthorizedPolicy",
         roles: [unauthorizedRole],
         statements: [
           new iam.PolicyStatement({
             effect: iam.Effect.ALLOW,
-            actions: ['mobileanalytics:PutEvents', 'cognito-sync:*'],
-            resources: ['*'],
+            actions: ["mobileanalytics:PutEvents", "cognito-sync:*"],
+            resources: ["*"],
           }),
         ],
       }
     );
     /* Authorized Role/Policy */
-    const authorizedRole = new iam.Role(this, 'CognitoAuthorizedRole', {
+    const authorizedRole = new iam.Role(this, "CognitoAuthorizedRole", {
       assumedBy: new iam.FederatedPrincipal(
-        'cognito-identity.amazonaws.com',
+        "cognito-identity.amazonaws.com",
         {
           StringEquals: {
-            'cognito-identity.amazonaws.com:aud': this.identityPool.ref,
+            "cognito-identity.amazonaws.com:aud": this.identityPool.ref,
           },
-          'ForAnyValue:StringLike': {
-            'cognito-identity.amazonaws.com:amr': 'authenticated',
+          "ForAnyValue:StringLike": {
+            "cognito-identity.amazonaws.com:amr": "authenticated",
           },
         },
-        'sts:AssumeRoleWithWebIdentity'
+        "sts:AssumeRoleWithWebIdentity"
       ),
     });
 
-    const authorizedPolicy = new Policy(this, 'CognitoAuthorizedPolicy', {
-      policyName: 'CognitoAuthorizedPolicy',
+    const authorizedPolicy = new Policy(this, "CognitoAuthorizedPolicy", {
+      policyName: "CognitoAuthorizedPolicy",
       roles: [authorizedRole],
       statements: [
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
           actions: [
-            'mobileanalytics:PutEvents',
-            'cognito-sync:*',
-            'cognito-identity:*',
+            "mobileanalytics:PutEvents",
+            "cognito-sync:*",
+            "cognito-identity:*",
           ],
-          resources: ['*'],
+          resources: ["*"],
         }),
         new iam.PolicyStatement({
           effect: iam.Effect.ALLOW,
-          actions: ['execute-api:Invoke'],
+          actions: ["execute-api:Invoke"],
           resources: [`*`],
         }),
       ],
@@ -154,7 +154,7 @@ export class CognitoStack extends cdk.Stack {
     /* Create Default Policy */
     const defaultPolicy = new cognito.CfnIdentityPoolRoleAttachment(
       this,
-      'DefaultValid',
+      "DefaultValid",
       {
         identityPoolId: this.identityPool.ref,
         roles: {

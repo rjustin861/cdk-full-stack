@@ -1,13 +1,13 @@
 import {
   CloudFrontWebDistribution,
   OriginAccessIdentity,
-} from '@aws-cdk/aws-cloudfront';
-import { Bucket } from '@aws-cdk/aws-s3';
-import * as cdk from '@aws-cdk/core';
-import { CfnOutput } from '@aws-cdk/core';
+} from "@aws-cdk/aws-cloudfront";
+import { Bucket } from "@aws-cdk/aws-s3";
+import * as cdk from "@aws-cdk/core";
+import { CfnOutput } from "@aws-cdk/core";
 
 export interface CdnStackProps extends cdk.StackProps {
-  CdnWebsiteIndexDocument: string;
+  cdnWebsiteIndexDocument: string;
   websiteBucket: Bucket;
 }
 
@@ -18,8 +18,8 @@ export class CdnStack extends cdk.Stack {
     /* Cloudfront CDN Distribution */
     //#region
 
-    const assetsCdn = new CloudFrontWebDistribution(this, 'AssetsCDN', {
-      defaultRootObject: props.CdnWebsiteIndexDocument,
+    const assetsCdn = new CloudFrontWebDistribution(this, "AssetsCDN", {
+      defaultRootObject: props.cdnWebsiteIndexDocument,
       comment: `CDN for ${props.websiteBucket}`,
       originConfigs: [
         {
@@ -39,7 +39,7 @@ export class CdnStack extends cdk.Stack {
     });
 
     //#endregion
-    new CfnOutput(this, 'CloudFrontCDNUrl', {
+    new CfnOutput(this, "CloudFrontCDNUrl", {
       value: `http://${assetsCdn.distributionDomainName}`,
     });
   }
